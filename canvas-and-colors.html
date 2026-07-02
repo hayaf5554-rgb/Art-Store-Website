@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canvas & Colors — Art Supplies</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --beige: #F6EFE3;
+    --beige-deep: #EFE4D2;
+    --pistachio: #A9C6A0;
+    --pistachio-deep: #7FA377;
+    --pink: #F0C4CE;
+    --pink-deep: #E3A2B1;
+    --ink: #3B352C;
+    --ink-soft: #726A5C;
+    --line: rgba(59,53,44,0.13);
+    --radius: 10px;
+    --paper: #FBF7EE;
+  }
+
+  *{ box-sizing: border-box; margin:0; padding:0; }
+  html{ scroll-behavior: smooth; }
+
+  body{
+    background: var(--beige);
+    color: var(--ink);
+    font-family: 'Work Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  a{ color: inherit; text-decoration: none; }
+  .wrap{ max-width: 1180px; margin: 0 auto; padding: 0 32px; }
+
+  /* faint paper grain */
+  body::before{
+    content:"";
+    position: fixed; inset:0;
+    background-image:
+      radial-gradient(rgba(59,53,44,0.035) 1px, transparent 1px);
+    background-size: 5px 5px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ---------- NAV ---------- */
+  header{
+    position: sticky; top:0; z-index: 50;
+    background: rgba(246,239,227,0.88);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  nav.wrap{
+    display:flex; align-items:center; justify-content:space-between;
+    height: 86px;
+  }
+  .brand{
+    font-family:'Fraunces', serif;
+    font-weight: 600;
+    font-style: italic;
+    font-size: 1.55rem;
+    letter-spacing: -0.005em;
+    display:flex; align-items:center; gap:11px;
+  }
+  .brand .dab{
+    width:15px; height:15px; border-radius: 50% 50% 50% 4px;
+    background: var(--pink-deep);
+    display:inline-block;
+    transform: rotate(-12deg);
+    box-shadow: 6px 3px 0 -2px var(--pistachio-deep);
+  }
+  .nav-links{ display:flex; gap: 42px; }
+  .nav-links a{
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+    position: relative;
+    padding: 4px 0;
+    transition: color .2s ease;
+  }
+  .nav-links a:hover{ color: var(--ink); }
+  .nav-links a::after{
+    content:"";
+    position:absolute; left:0; bottom:-2px;
+    width:0; height:2px; background: var(--pink-deep);
+    border-radius: 2px;
+    transition: width .25s ease;
+  }
+  .nav-links a:hover::after{ width:100%; }
+
+  .nav-cta{
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 11px 22px;
+    background: var(--pistachio-deep);
+    color: var(--paper);
+    border-radius: 999px;
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .nav-cta:hover{ transform: translateY(-2px); box-shadow: 0 10px 20px -8px rgba(127,163,119,0.6); }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position: relative;
+    padding: 118px 0 104px;
+    border-bottom: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .hero-grid{
+    display:grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 48px;
+    align-items:center;
+    position: relative; z-index: 2;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 0.74rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--pistachio-deep);
+    margin-bottom: 24px;
+    display:flex; align-items:center; gap: 10px;
+  }
+  .eyebrow::before{
+    content:""; width: 28px; height:1.5px; background: var(--pistachio-deep);
+  }
+  .hero h1{
+    font-family:'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(2.9rem, 5.4vw, 4.6rem);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    margin-bottom: 24px;
+  }
+  .hero h1 .accent{
+    font-style: italic;
+    font-weight: 500;
+    color: var(--pink-deep);
+    position: relative;
+    display: inline-block;
+  }
+  .hero h1 .accent svg{
+    position:absolute; left:-4px; right:-4px; bottom:-10px;
+    width: calc(100% + 8px);
+    height: 14px;
+  }
+  .hero p.tagline{
+    font-size: 1.14rem;
+    color: var(--ink-soft);
+    max-width: 46ch;
+    line-height: 1.65;
+    margin-bottom: 40px;
+  }
+  .hero-actions{ display:flex; align-items:center; gap: 28px; }
+
+  .btn-primary{
+    font-family:'Work Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.96rem;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 17px 36px;
+    border-radius: 999px;
+    border: none;
+    cursor:pointer;
+    position: relative;
+    overflow:hidden;
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .btn-primary span{ position:relative; z-index:2; }
+  .btn-primary::before{
+    content:"";
+    position:absolute; inset:0;
+    background: linear-gradient(120deg, var(--pink-deep), var(--pistachio-deep));
+    transform: translateX(-101%);
+    transition: transform .4s cubic-bezier(.65,0,.35,1);
+    z-index:1;
+  }
+  .btn-primary:hover::before{ transform: translateX(0); }
+  .btn-primary:hover{ transform: translateY(-2px); box-shadow: 0 14px 28px -12px rgba(59,53,44,0.4); }
+
+  .link-secondary{
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-bottom: 1.5px solid var(--ink);
+    padding-bottom: 2px;
+  }
+
+  /* hero signature: soft palette bloom */
+  .swatch-stage{
+    position: relative;
+    height: 440px;
+  }
+  .blob{
+    position:absolute;
+    box-shadow: 0 24px 50px -20px rgba(59,53,44,0.28);
+  }
+  .blob.b1{
+    width: 250px; height: 300px;
+    background: var(--pink);
+    top: 4px; right: 40px;
+    border-radius: 42% 58% 55% 45% / 55% 45% 55% 45%;
+    transform: rotate(6deg);
+  }
+  .blob.b2{
+    width: 210px; height: 210px;
+    background: var(--pistachio);
+    top: 200px; right: 250px;
+    border-radius: 58% 42% 45% 55% / 45% 55% 45% 55%;
+    transform: rotate(-8deg);
+  }
+  .blob.b3{
+    width: 150px; height: 150px;
+    background: var(--beige-deep);
+    border: 1px solid var(--line);
+    bottom: 10px; right: 20px;
+    border-radius: 50%;
+  }
+  .blob.b4{
+    width: 96px; height: 96px;
+    background: var(--pink-deep);
+    top: 44px; right: 300px;
+    border-radius: 50%;
+    opacity: 0.9;
+  }
+  .swatch-stage .brush-ring{
+    position:absolute; width: 300px; height:300px;
+    border: 2px dashed var(--pistachio-deep);
+    border-radius: 50%;
+    opacity: 0.35;
+    top: 60px; right: 10px;
+    animation: spin 40s linear infinite;
+  }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+
+  /* ---------- SECTION HEADS ---------- */
+  .section{ padding: 100px 0; position: relative; z-index: 2; }
+  .section-head{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    margin-bottom: 58px;
+    gap: 24px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 30px;
+  }
+  .section-head h2{
+    font-family:'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(2rem, 3.2vw, 2.7rem);
+    letter-spacing: -0.01em;
+  }
+  .section-head p{
+    color: var(--ink-soft);
+    max-width: 34ch;
+    font-size: 0.98rem;
+    line-height: 1.6;
+  }
+
+  /* ---------- PRODUCTS ---------- */
+  .products{ background: var(--beige-deep); border-bottom: 1px solid var(--line); }
+
+  .product-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .product-card{
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 28px 26px 26px;
+    display:flex; flex-direction:column;
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+  .product-card:hover{
+    transform: translateY(-6px);
+    box-shadow: 0 22px 36px -20px rgba(59,53,44,0.28);
+  }
+
+  .swatch-bar{
+    width: 36px; height: 6px; border-radius: 3px;
+    margin-bottom: 20px;
+  }
+
+  .product-media{
+    height: 150px;
+    border-radius: 14px;
+    margin-bottom: 22px;
+    display:flex; align-items:center; justify-content:center;
+    position: relative;
+    overflow:hidden;
+  }
+  .product-media svg{ width: 72px; height: 72px; }
+
+  .product-card h3{
+    font-family:'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+  }
+  .product-card .desc{
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+    margin-bottom: 22px;
+    flex-grow: 1;
+  }
+  .product-foot{
+    display:flex; align-items:center; justify-content:space-between;
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+  }
+  .price{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+  .add-btn{
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border: 1.5px solid var(--ink);
+    padding: 8px 17px;
+    border-radius: 999px;
+    background: transparent;
+    cursor: pointer;
+    transition: background .2s ease, color .2s ease;
+  }
+  .add-btn:hover{ background: var(--ink); color: var(--paper); }
+
+  /* ---------- CONTACT ---------- */
+  .contact{
+    background: var(--beige);
+  }
+  .contact-inner{
+    display:grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 60px;
+    align-items: start;
+  }
+  .contact-copy h2{
+    font-family:'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(2rem, 3.2vw, 2.6rem);
+    margin-bottom: 18px;
+    letter-spacing: -0.01em;
+  }
+  .contact-copy p{
+    color: var(--ink-soft);
+    font-size: 1rem;
+    line-height: 1.65;
+    max-width: 40ch;
+    margin-bottom: 26px;
+  }
+  .contact-detail{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .contact-detail span{ color: var(--ink-soft); }
+
+  .contact-form{
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 40px;
+  }
+  .form-row{ margin-bottom: 22px; }
+  .form-row label{
+    display:block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 9px;
+  }
+  .form-row input,
+  .form-row textarea{
+    width: 100%;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 0.98rem;
+    color: var(--ink);
+    background: var(--beige);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 13px 16px;
+    outline: none;
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  .form-row textarea{ resize: vertical; min-height: 120px; font-family: 'Work Sans', sans-serif; }
+  .form-row input:focus,
+  .form-row textarea:focus{
+    border-color: var(--pistachio-deep);
+    box-shadow: 0 0 0 3px rgba(127,163,119,0.22);
+  }
+  .form-row input::placeholder,
+  .form-row textarea::placeholder{ color: var(--ink-soft); opacity: 0.6; }
+
+  .form-submit{
+    width: 100%;
+    font-family:'Work Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.96rem;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 15px 20px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    transition: background .2s ease, transform .2s ease;
+  }
+  .form-submit:hover{ background: var(--pink-deep); transform: translateY(-2px); }
+
+  .form-note{
+    margin-top: 14px;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    text-align: center;
+    min-height: 1em;
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer{ padding: 50px 0 42px; border-top: 1px solid var(--line); }
+  .footer-row{
+    display:flex; justify-content:space-between; align-items:center;
+    flex-wrap: wrap; gap: 18px;
+  }
+  footer .brand{ font-size: 1.15rem; }
+  .footer-note{
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    font-family:'JetBrains Mono', monospace;
+  }
+
+  @media (max-width: 900px){
+    .hero-grid{ grid-template-columns: 1fr; }
+    .swatch-stage{ height: 280px; margin-top: 24px; }
+    .nav-links{ display:none; }
+    .product-grid{ grid-template-columns: repeat(2, 1fr); }
+    .section-head{ flex-direction: column; align-items:flex-start; }
+    .contact-inner{ grid-template-columns: 1fr; }
+    .contact-form{ padding: 30px; }
+  }
+  @media (max-width: 540px){
+    .product-grid{ grid-template-columns: 1fr; }
+    .hero-actions{ flex-direction: column; align-items:flex-start; gap: 16px; }
+  }
+
+  :focus-visible{ outline: 2px solid var(--pistachio-deep); outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; animation: none !important; }
+    html{ scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <div class="brand"><span class="dab"></span>Canvas & Colors</div>
+    <div class="nav-links">
+      <a href="#shop">Shop</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a href="#shop" class="nav-cta">Shop Now</a>
+  </nav>
+</header>
+
+<section class="hero" id="about">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow">Est. in a converted print shop</div>
+      <h1>Bring Your Art<br>to <span class="accent">Life<svg viewBox="0 0 200 14" preserveAspectRatio="none"><path d="M2 10 Q 50 2, 100 8 T 198 6" stroke="#E3A2B1" stroke-width="4" fill="none" stroke-linecap="round"/></svg></span></h1>
+      <p class="tagline">Soft pigments, gentle brushes, and paper that loves every color you put on it. Everything here is chosen to make the next piece feel a little more effortless.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="document.getElementById('shop').scrollIntoView()"><span>Shop Now</span></button>
+        <a href="#contact" class="link-secondary">Say hello</a>
+      </div>
+    </div>
+    <div class="swatch-stage" aria-hidden="true">
+      <div class="brush-ring"></div>
+      <div class="blob b4"></div>
+      <div class="blob b2"></div>
+      <div class="blob b1"></div>
+      <div class="blob b3"></div>
+    </div>
+  </div>
+</section>
+
+<section class="products section" id="shop">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>The shelf</h2>
+      <p>Six staples we restock every week, in the mediums our regulars actually reach for.</p>
+    </div>
+
+    <div class="product-grid">
+
+      <div class="product-card">
+        <div class="swatch-bar" style="background:var(--pink-deep)"></div>
+        <div class="product-media" style="background:#F6DEE4">
+          <svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="20" stroke="#E3A2B1" stroke-width="2"/><circle cx="32" cy="32" r="6" fill="#E3A2B1"/></svg>
+        </div>
+        <h3>Acrylic Paint Set, 24 Colors</h3>
+        <p class="desc">Soft, chalky pastel pigments in tubes sized for a full canvas, not a swatch card.</p>
+        <div class="product-foot">
+          <span class="price">$38.00</span>
+          <button class="add-btn">Add</button>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="swatch-bar" style="background:var(--pistachio-deep)"></div>
+        <div class="product-media" style="background:#DCEAD7">
+          <svg viewBox="0 0 64 64" fill="none"><rect x="14" y="14" width="36" height="36" stroke="#7FA377" stroke-width="2"/><rect x="24" y="24" width="16" height="16" fill="#7FA377"/></svg>
+        </div>
+        <h3>Half-Pan Watercolor Palette</h3>
+        <p class="desc">Twelve lightfast half-pans in a tin small enough for a coat pocket.</p>
+        <div class="product-foot">
+          <span class="price">$24.00</span>
+          <button class="add-btn">Add</button>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="swatch-bar" style="background:var(--beige-deep); border:1px solid var(--line)"></div>
+        <div class="product-media" style="background:#F1E7D2">
+          <svg viewBox="0 0 64 64" fill="none"><rect x="10" y="18" width="44" height="30" rx="2" stroke="#B7A587" stroke-width="2"/><line x1="10" y1="30" x2="54" y2="30" stroke="#B7A587" stroke-width="2"/></svg>
+        </div>
+        <h3>Stretched Canvas Boards, Set of 5</h3>
+        <p class="desc">11×14 cotton canvas, primed twice, ready the moment you open the box.</p>
+        <div class="product-foot">
+          <span class="price">$32.00</span>
+          <button class="add-btn">Add</button>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="swatch-bar" style="background:var(--pink)"></div>
+        <div class="product-media" style="background:#F6DEE4">
+          <svg viewBox="0 0 64 64" fill="none"><line x1="16" y1="48" x2="44" y2="16" stroke="#E3A2B1" stroke-width="3" stroke-linecap="round"/><path d="M44 16 L50 10 L54 14 L48 20 Z" fill="#E3A2B1"/></svg>
+        </div>
+        <h3>Sable-Blend Brush Set</h3>
+        <p class="desc">Six rounds and flats that hold a point through a full wash session.</p>
+        <div class="product-foot">
+          <span class="price">$46.00</span>
+          <button class="add-btn">Add</button>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="swatch-bar" style="background:var(--pistachio)"></div>
+        <div class="product-media" style="background:#DCEAD7">
+          <svg viewBox="0 0 64 64" fill="none"><rect x="16" y="12" width="8" height="40" rx="4" fill="#7FA377" transform="rotate(15 20 32)"/><rect x="30" y="12" width="8" height="40" rx="4" fill="#E3A2B1" transform="rotate(-8 34 32)"/></svg>
+        </div>
+        <h3>Oil Pastel Set, 36 Shades</h3>
+        <p class="desc">Soft, buttery sticks that layer without crumbling off the page.</p>
+        <div class="product-foot">
+          <span class="price">$21.00</span>
+          <button class="add-btn">Add</button>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="swatch-bar" style="background:var(--pink-deep)"></div>
+        <div class="product-media" style="background:#F1E7D2">
+          <svg viewBox="0 0 64 64" fill="none"><rect x="16" y="10" width="32" height="44" rx="2" stroke="#B7A587" stroke-width="2"/><line x1="16" y1="10" x2="16" y2="54" stroke="#B7A587" stroke-width="3"/></svg>
+        </div>
+        <h3>Hardcover Sketchbook, 100gsm</h3>
+        <p class="desc">Toothy enough for charcoal, smooth enough for ink — 96 pages.</p>
+        <div class="product-foot">
+          <span class="price">$18.00</span>
+          <button class="add-btn">Add</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="contact section" id="contact">
+  <div class="wrap contact-inner">
+    <div class="contact-copy">
+      <h2>Say hello</h2>
+      <p>Questions about a color, a class, or a custom order — send a note and we'll write back within a day or two.</p>
+      <div class="contact-detail">
+        <div><span>Visit —</span> 4 Mill Lane</div>
+        <div><span>Hours —</span> Tue–Sun, 9am–6pm</div>
+        <div><span>Email —</span> hello@canvasandcolors.shop</div>
+      </div>
+    </div>
+
+    <form class="contact-form" id="contactForm">
+      <div class="form-row">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" placeholder="Your name" required>
+      </div>
+      <div class="form-row">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" required>
+      </div>
+      <div class="form-row">
+        <label for="message">Message</label>
+        <textarea id="message" name="message" placeholder="Tell us what you're working on..." required></textarea>
+      </div>
+      <button type="submit" class="form-submit">Send Message</button>
+      <p class="form-note" id="formNote"></p>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-row">
+    <div class="brand"><span class="dab"></span>Canvas & Colors</div>
+    <div class="footer-note">Open Tue–Sun · 9am–6pm · 4 Mill Lane</div>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('contactForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    document.getElementById('formNote').textContent = "Thanks — we'll be in touch soon!";
+    this.reset();
+  });
+</script>
+
+</body>
+</html>
